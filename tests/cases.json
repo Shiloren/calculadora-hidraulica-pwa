@@ -1,0 +1,47 @@
+[
+    {
+        "id": "laminar_basic",
+        "description": "Flujo laminar simple (Re < 2000)",
+        "inputs": {
+            "q": 0.00005,
+            "d": 0.050,
+            "l": 100,
+            "roughness": 0.0015,
+            "kLocal": 0
+        },
+        "expected": {
+            "flowRegime": "Laminar",
+            "f": 0.050,
+            "totalLoss": 0.0032
+        }
+    },
+    {
+        "id": "turbulent_smooth",
+        "description": "Flujo turbulento liso (PVC)",
+        "inputs": {
+            "q": 0.010,
+            "d": 0.100,
+            "l": 500,
+            "roughness": 0.0015e-3,
+            "kLocal": 0
+        },
+        "expected": {
+            "flowRegime": "Turbulento",
+            "totalLoss": 7.01
+        }
+    },
+    {
+        "id": "local_losses",
+        "description": "Solo pérdidas localizadas dominante",
+        "inputs": {
+            "q": 0.05,
+            "d": 0.150,
+            "l": 10,
+            "roughness": 0.0,
+            "kLocal": 10
+        },
+        "expected": {
+            "localLoss": 4.08
+        }
+    }
+]
