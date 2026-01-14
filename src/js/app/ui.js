@@ -28,48 +28,116 @@ export const UI = {
 
     // ... (rest of input getting) ...
 
-    // Install Flow
+    // Install Flow: "Silent & Premium"
     showInstallPrompt: () => {
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        // Validation: Don't show if already installed or dismissed
         const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        if (isStandalone) return;
+        if (localStorage.getItem('install_dismissed') === 'true') return;
 
-        if (isStandalone) return; // Already installed
-        if (localStorage.getItem('install_dismissed')) return; // User dismissed
+        // Prevent spamming: Check if we already showed it this session
+        if (sessionStorage.getItem('install_session_shown')) return;
 
-        const modal = document.getElementById('install-modal');
-        const content = document.getElementById('install-instructions');
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-        if (isIOS) {
-            content.innerHTML = `
-                <p>Para instalar esta app en tu iPhone:</p>
-                <ol>
-                    <li>Toca el botón <strong>Compartir</strong> <img src="assets/icon-share.png" style="height:1em; vertical-align:middle;"></li>
-                    <li>Selecciona <strong>Añadir a pantalla de inicio</strong>.</li>
-                </ol>
+        // Logic:
+        // Android -> We have `window.deferredPrompt` -> Show Toast -> Click -> Native Prompt
+        // iOS -> We are on iOS -> Show Toast -> Click -> Show Visual Guide Modal
+
+        if (window.deferredPrompt) {
+            UI.showToast("¿Instalar Hydrocálculo?", "Funciona offline y es más rápida.", "Instalar", () => {
+                window.deferredPrompt.prompt();
+                window.deferredPrompt.userChoice.then((choice) => {
+                    if (choice.outcome === 'accepted') {
+                        UI.hideToast();
+                    }
+                });
+            });
+            sessionStorage.setItem('install_session_shown', 'true');
+        } else if (isIOS) {
+            UI.showToast("¿Usar como App?", "Añádela a tu inicios para acceso instantáneo.", "Ver cómo", () => {
+                UI.showIOSGuide();
+                UI.hideToast();
+            });
+            sessionStorage.setItem('install_session_shown', 'true');
+        }
+    },
+
+    showToast: (title, subtitle, actionText, actionCallback) => {
+        // Remove existing if any
+        const existing = document.getElementById('install-toast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'install-toast';
+        toast.className = 'install-toast slide-up';
+        toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-subtitle">${subtitle}</div>
+            </div>
+            <div class="toast-actions">
+                <button id="btn-toast-action" class="btn-toast-primary">${actionText}</button>
+                <button id="btn-toast-close" class="btn-toast-close">✕</button>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        document.getElementById('btn-toast-action').onclick = actionCallback;
+        document.getElementById('btn-toast-close').onclick = () => {
+            UI.hideToast();
+            localStorage.setItem('install_dismissed', 'true');
+        };
+    },
+
+    hideToast: () => {
+        const toast = document.getElementById('install-toast');
+        if (toast) {
+            toast.classList.remove('slide-up');
+            toast.classList.add('slide-down');
+            setTimeout(() => toast.remove(), 300);
+        }
+    },
+
+    showIOSGuide: () => {
+        // Reuse existing modal structure, injecting dynamic content
+        let modal = document.getElementById('install-modal');
+        if (!modal) {
+            // Create if missing (fail-safe)
+            modal = document.createElement('div');
+            modal.id = 'install-modal';
+            modal.className = 'install-modal hidden';
+            modal.innerHTML = `
+                <div class="install-sheet">
+                    <div id="install-instructions" class="install-steps"></div>
+                    <button id="btn-close-install" class="install-btn">Entendido</button>
+                </div>
             `;
-            modal.classList.remove('hidden');
-        } else {
-            // Android / Desktop generally handle generic banners, 
-            // but we can show a hint if we captured the 'beforeinstallprompt'
-            if (window.deferredPrompt) {
-                content.innerHTML = `<p>Instala la app para usarla sin conexión.</p>`;
-                const btn = document.createElement('button');
-                btn.className = 'btn-primary';
-                btn.textContent = 'Instalar ahora';
-                btn.style.marginTop = '10px';
-                btn.onclick = async () => {
-                    window.deferredPrompt.prompt();
-                    const outcome = await window.deferredPrompt.userChoice;
-                    if (outcome === 'accepted') modal.classList.add('hidden');
-                };
-                content.appendChild(btn);
-                modal.classList.remove('hidden');
-            }
+            document.body.appendChild(modal);
         }
 
-        document.getElementById('btn-close-install').onclick = () => {
+        const content = document.getElementById('install-instructions');
+        content.innerHTML = `
+            <div style="text-align:center; margin-bottom:15px;">
+                <img src="assets/icon-share.svg" style="height:24px; opacity:0.8;">
+                <span style="font-size:20px; vertical-align:middle; margin:0 10px;">➔</span>
+                <img src="assets/icon-add.svg" style="height:24px; border-radius:4px;">
+            </div>
+            <p style="text-align:center; font-weight:600; font-size:17px; margin-bottom:5px;">Añadir a Pantalla de Inicio</p>
+            <p style="text-align:center; color:#888; font-size:14px; margin:0;">Toca el icono Compartir y selecciona "Añadir a inicio"</p>
+        `;
+
+        modal.classList.remove('hidden');
+
+        // Re-bind close
+        const closeBtn = document.getElementById('btn-close-install');
+        closeBtn.onclick = () => {
             modal.classList.add('hidden');
-            localStorage.setItem('install_dismissed', 'true');
+        };
+        // Also close on background click
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
         };
     },
 
