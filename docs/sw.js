@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hidraulica-v1-modules';
+const CACHE_NAME = 'hydrocalculo-v1.1';
 const ASSETS = [
     './',
     './index.html',
