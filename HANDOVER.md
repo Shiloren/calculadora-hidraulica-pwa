@@ -17,9 +17,11 @@
 3.  **Mobile-First**: El botón "Calcular" debe ser siempre visible (Sticky Bottom).
 
 ## ✅ Últimos Cambios Realizados
-1.  **Hardening de Validación**: Se corrigió el bug donde inputs negativos eran aceptados. Ahora se bloquean con mensaje error.
-2.  **Sticky Footer Real**: Se corrigió el CSS `.sticky-footer` para usar `position: fixed` y `bottom: 0px`.
-3.  **Onboarding PWA**: Se añadió detección de iOS/Android para mostrar ayudas de instalación personalizadas.
+1.  **Hardening & Chaos Monkey**: El sistema sobrevivió a pruebas de estrés ("Chaos Monkey"). Se implementó validación estricta y manejo de errores para valores negativos, cero, y no numéricos.
+2.  **UX Premium & Rebranding**: Renombrado a "Hydrocálculo". Interfaz "Apple-grade" con tipografía, colores y sombras refinadas.
+3.  **Sticky Footer & Layout**: Solución robusta para botones de acción fijos en móviles (`position: fixed`).
+4.  **Lógica de Historial**: Implementada de-duplicación para evitar entradas repetidas en `localStorage`.
+5.  **Onboarding PWA**: Detección de SO para instrucciones de instalación.
 
 ## 📝 Próximos Pasos Sugeridos
 1.  Validar comportamiento de scroll en dispositivos físicos iOS (Mobile Safari tiene peculiaridades con `position: fixed` y teclado virtual).
