@@ -42,59 +42,65 @@ const App = {
     },
 
     calculate: () => {
-        const raw = UI.getValues();
-        if (!raw) {
-            UI.showError("Por favor completa los campos Q, D, L con valores mayores a 0.");
-            return;
-        }
+        // 1. Get RAW strings first to check for emptiness/format
+        const qVal = document.getElementById('input-q').value;
+        const dVal = document.getElementById('input-d').value;
+        const lVal = document.getElementById('input-l').value;
 
-        // Strict Validation (Apple-grade Fail-Closed)
-        if (isNaN(raw.q) || isNaN(raw.d) || isNaN(raw.l)) {
+        // 2. Parse numbers (Fail-Closed if NaN)
+        const q = UI.normalization.parse(qVal);
+        const d = UI.normalization.parse(dVal);
+        const l = UI.normalization.parse(lVal);
+
+        // 3. Strict Validation
+        if (isNaN(q) || isNaN(d) || isNaN(l)) {
             UI.showError("Por favor verifica los números. Usa coma (,) o punto (.).");
             return;
         }
 
-        if (raw.q <= 0 || raw.d <= 0 || raw.l <= 0) {
+        if (q <= 0 || d <= 0 || l <= 0) {
             UI.showError("Caudal, Diámetro y Longitud deben ser mayores a 0.");
             return;
         }
 
-        if ((raw.roughness < 0 && raw.roughness !== undefined) || raw.k < 0) {
+        // 4. Advanced Params
+        const roughVal = document.getElementById('input-roughness').value;
+        const kVal = document.getElementById('input-k').value;
+        const roughness = UI.normalization.parse(roughVal);
+        const k = UI.normalization.parse(kVal);
+
+        if ((roughness < 0 && roughVal !== '') || k < 0) {
             UI.showError("Valores físicos imposibles (negativos).");
             return;
         }
 
-        // SI Conversion (UI -> Engine)
-        // Q: l/s -> m3/s
-        // D: mm -> m
-        // Roughness: mm -> m
-
+        // 5. SI Conversion for Engine
         const params = {
-            q: raw.q / 1000,
-            d: raw.d / 1000,
-            l: raw.l,
-            roughness: raw.roughness / 1000,
-            kLocal: raw.k
+            q: q / 1000,
+            d: d / 1000,
+            l: l,
+            roughness: roughness / 1000,
+            kLocal: k
         };
 
-        // Engine Call
+        // 6. Engine Call
         const res = Engine.calculate(params);
 
-        // Render Params
+        // 7. Render Params
         UI.renderResults(res);
 
-        // Save (De-duplication Check)
-        const uiInputs = raw;
+        // 8. Save (De-duplication Optimized)
+        const uiInputs = { q, d, l, roughness, k };
         const lastEntry = Storage.load()[0]; // Peek last
 
-        // Simple deep compare of inputs
+        // Deep compare of clean values
         const isDuplicate = lastEntry && JSON.stringify(lastEntry.uiInputs) === JSON.stringify(uiInputs);
 
         if (!isDuplicate) {
             const historyEntry = {
                 id: Date.now(),
                 date: new Date().toLocaleString(),
-                uiInputs: raw,
+                uiInputs: uiInputs,
                 loss: res.totalLoss.toFixed(3)
             };
             const newList = Storage.save(historyEntry);

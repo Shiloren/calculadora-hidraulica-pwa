@@ -196,17 +196,19 @@ summary::-webkit-details-marker {
 /* Sticky Footer */
 .sticky-footer {
     position: fixed;
-    bottom: 0;
+    bottom: 0px;
     left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.85);
-    /* Glass-ish light */
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    /* Opaque enough */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding: var(--spacing-md);
-    box-shadow: var(--shadow-sticky);
-    z-index: 100;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 16px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    box-sizing: border-box;
+    /* Crucial for padding */
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
