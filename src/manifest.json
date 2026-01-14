@@ -1,6 +1,6 @@
 {
-  "name": "Calculadora Hidráulica",
-  "short_name": "Hidráulica",
+  "name": "Hydrocálculo",
+  "short_name": "Hydrocálculo",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
