@@ -17,8 +17,60 @@ export const UI = {
     },
 
     normalization: {
-        // Replace comma with dot
-        parse: (val) => parseFloat(val.replace(',', '.'))
+        // Replace comma with dot and strict parse
+        parse: (val) => {
+            if (typeof val !== 'string') return 0;
+            const normalized = val.replace(',', '.');
+            const num = parseFloat(normalized);
+            return isNaN(num) ? NaN : num;
+        }
+    },
+
+    // ... (rest of input getting) ...
+
+    // Install Flow
+    showInstallPrompt: () => {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+
+        if (isStandalone) return; // Already installed
+        if (localStorage.getItem('install_dismissed')) return; // User dismissed
+
+        const modal = document.getElementById('install-modal');
+        const content = document.getElementById('install-instructions');
+
+        if (isIOS) {
+            content.innerHTML = `
+                <p>Para instalar esta app en tu iPhone:</p>
+                <ol>
+                    <li>Toca el botón <strong>Compartir</strong> <img src="assets/icon-share.png" style="height:1em; vertical-align:middle;"></li>
+                    <li>Selecciona <strong>Añadir a pantalla de inicio</strong>.</li>
+                </ol>
+            `;
+            modal.classList.remove('hidden');
+        } else {
+            // Android / Desktop generally handle generic banners, 
+            // but we can show a hint if we captured the 'beforeinstallprompt'
+            if (window.deferredPrompt) {
+                content.innerHTML = `<p>Instala la app para usarla sin conexión.</p>`;
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.textContent = 'Instalar ahora';
+                btn.style.marginTop = '10px';
+                btn.onclick = async () => {
+                    window.deferredPrompt.prompt();
+                    const outcome = await window.deferredPrompt.userChoice;
+                    if (outcome === 'accepted') modal.classList.add('hidden');
+                };
+                content.appendChild(btn);
+                modal.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('btn-close-install').onclick = () => {
+            modal.classList.add('hidden');
+            localStorage.setItem('install_dismissed', 'true');
+        };
     },
 
     getValues: () => {
@@ -61,11 +113,16 @@ export const UI = {
         document.getElementById('msg-error').classList.add('hidden');
 
         document.getElementById('res-total').textContent = res.totalLoss.toFixed(3) + ' m';
-        document.getElementById('res-friction').textContent = res.frictionLoss.toFixed(3) + ' m';
-        document.getElementById('res-local').textContent = res.localLoss.toFixed(3) + ' m';
+        document.getElementById('res-friction').textContent = res.frictionLoss.toFixed(2) + ' m';
+        document.getElementById('res-local').textContent = res.localLoss.toFixed(2) + ' m';
         document.getElementById('res-velocity').textContent = res.v.toFixed(2) + ' m/s';
         document.getElementById('res-reynolds').textContent = Math.round(res.re).toLocaleString();
-        document.getElementById('res-regime').textContent = res.regime;
+
+        const regEl = document.getElementById('res-regime');
+        regEl.textContent = res.regime;
+        if (res.regime === 'Laminar') regEl.style.color = 'var(--color-success)';
+        else if (res.regime === 'Transición') regEl.style.color = 'var(--color-warning)';
+        else regEl.style.color = 'var(--color-text-main)';
 
         // Warnings
         const wBox = document.getElementById('msg-warning');

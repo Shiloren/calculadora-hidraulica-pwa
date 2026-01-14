@@ -10,107 +10,140 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/styles.css">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#F5F5F7">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
 </head>
 
 <body>
 
     <main class="app-container">
         <header>
-            <h1>Pérdida de Carga</h1>
+            <h1>Hydrocálculo</h1>
         </header>
 
-        <section class="card input-group">
-            <label>
-                Caudal (l/s)
-                <input type="text" id="input-q" inputmode="decimal" placeholder="Ej. 50">
-            </label>
-            <label>
-                Diámetro Interior (mm)
-                <input type="text" id="input-d" inputmode="decimal" placeholder="Ej. 150">
-            </label>
-            <label>
-                Longitud (m)
-                <input type="text" id="input-l" inputmode="decimal" placeholder="Ej. 100">
-            </label>
+        <!-- Error container (Fail-Closed) -->
+        <div id="msg-error" class="message error hidden"></div>
+
+        <!-- Main Inputs -->
+        <section class="card">
+            <div class="input-row">
+                <label>Caudal</label>
+                <div class="input-wrapper">
+                    <input type="text" id="input-q" inputmode="decimal" placeholder="Ej. 10">
+                    <span class="unit-label">l/s</span>
+                </div>
+            </div>
+            <div class="input-row">
+                <label>Diámetro Interior</label>
+                <div class="input-wrapper">
+                    <input type="text" id="input-d" inputmode="decimal" placeholder="Ej. 100">
+                    <span class="unit-label">mm</span>
+                </div>
+            </div>
+            <div class="input-row">
+                <label>Longitud</label>
+                <div class="input-wrapper">
+                    <input type="text" id="input-l" inputmode="decimal" placeholder="Ej. 50">
+                    <span class="unit-label">m</span>
+                </div>
+            </div>
         </section>
 
-        <details class="advanced-section">
-            <summary>Opciones Avanzadas</summary>
-            <div class="card input-group">
-                <label>
-                    Material (Rugosidad mm)
-                    <select id="select-material">
-                        <option value="0.0015">PVC / Plástico (0.0015)</option>
-                        <option value="0.045">Acero Comercial (0.045)</option>
-                        <option value="0.15">Hierro Galvanizado (0.15)</option>
-                        <option value="custom">Otro...</option>
-                    </select>
-                    <input type="text" id="input-roughness" inputmode="decimal" value="0.0015" style="display:none;">
-                </label>
-
-                <label>
-                    Accesorios (K total)
-                    <input type="text" id="input-k" inputmode="decimal" value="0" placeholder="0">
-                </label>
-            </div>
-        </details>
-
-        <button id="btn-calculate" class="btn-primary">Calcular</button>
-
+        <!-- Results Area -->
         <section id="results-area" class="hidden">
-            <div class="card result-card" id="card-total">
-                <div class="result-label">Pérdida Total</div>
-                <div class="result-value" id="res-total">-- m</div>
+            <div class="card result-card-main">
+                <div class="result-main-label">Pérdida Total</div>
+                <div class="result-main-value" id="res-total">--</div>
             </div>
 
             <div class="grid-2">
-                <div class="card result-card">
-                    <div class="result-label">Fricción</div>
-                    <div class="result-value-sm" id="res-friction">-- m</div>
+                <div class="card">
+                    <div class="result-sub-label">Fricción</div>
+                    <div class="result-sub-value" id="res-friction">--</div>
                 </div>
-                <div class="card result-card">
-                    <div class="result-label">Accesorios</div>
-                    <div class="result-value-sm" id="res-local">-- m</div>
-                </div>
-            </div>
-
-            <div class="card result-card info-card">
-                <div class="row">
-                    <span>Velocidad:</span>
-                    <span id="res-velocity">-- m/s</span>
-                </div>
-                <div class="row">
-                    <span>Reynolds:</span>
-                    <span id="res-reynolds">--</span>
-                </div>
-                <div class="row" id="regime-row">
-                    <span>Régimen:</span>
-                    <strong id="res-regime">--</strong>
+                <div class="card">
+                    <div class="result-sub-label">Accesorios</div>
+                    <div class="result-sub-value" id="res-local">--</div>
                 </div>
             </div>
 
             <div id="msg-warning" class="message warning hidden"></div>
-            <div id="msg-error" class="message error hidden"></div>
+
+            <div class="card">
+                <div class="info-row">
+                    <span>Velocidad</span>
+                    <span class="info-val" id="res-velocity">--</span>
+                </div>
+                <div class="info-row">
+                    <span>Reynolds</span>
+                    <span class="info-val" id="res-reynolds">--</span>
+                </div>
+                <div class="info-row">
+                    <span>Régimen</span>
+                    <span class="info-val" id="res-regime">--</span>
+                </div>
+            </div>
         </section>
 
+        <!-- Advanced -->
+        <details class="advanced-section">
+            <summary>Opciones Avanzadas</summary>
+            <div class="card">
+                <div class="input-row">
+                    <label>Material (Rugosidad)</label>
+                    <div class="input-wrapper">
+                        <select id="select-material">
+                            <option value="0.0015">PVC / Plástico (0.0015)</option>
+                            <option value="0.045">Acero Comercial (0.045)</option>
+                            <option value="0.15">Hierro Galvanizado (0.15)</option>
+                            <option value="custom">Otro...</option>
+                        </select>
+                    </div>
+                    <input type="text" id="input-roughness" inputmode="decimal" value="0.0015"
+                        style="display:none; margin-top:8px;">
+                </div>
+
+                <div class="input-row" style="margin-top:16px;">
+                    <label>Accesorios (K)</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="input-k" inputmode="decimal" value="0" placeholder="0">
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- History -->
         <section class="history-section">
             <h2>Cálculos Recientes</h2>
-            <div id="history-list" class="history-list">
-                <!-- Items insertados por JS -->
-                <div class="empty-state">No hay cálculos recientes</div>
+            <div id="history-list">
+                <!-- Items -->
             </div>
-            <button id="btn-clear-history" class="btn-text">Borrar historial</button>
+            <button id="btn-clear-history" class="btn-text">Borrar Historial</button>
         </section>
 
     </main>
 
+    <!-- Sticky Footer -->
+    <div class="sticky-footer">
+        <button id="btn-calculate" class="btn-primary">Calcular</button>
+    </div>
+
+    <!-- Install Modal (Hidden by default) -->
+    <div id="install-modal" class="install-modal hidden">
+        <div class="install-sheet">
+            <div class="install-title">Instalar Hydrocálculo</div>
+            <div id="install-instructions">
+                <!-- Dynamic content -->
+            </div>
+            <button id="btn-close-install" class="install-btn">Entendido</button>
+        </div>
+    </div>
+
     <script type="module" src="js/app/app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW Registered', reg))
-                .catch(err => console.error('SW Fail', err));
+            navigator.serviceWorker.register('./sw.js');
         }
     </script>
 </body>

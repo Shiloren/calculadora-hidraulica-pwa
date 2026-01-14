@@ -7,6 +7,17 @@ import { UI } from './ui.js';
 
 const App = {
     init: () => {
+        // PWA Install Capture
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+            // Delay showing prompt slightly for better UX
+            setTimeout(UI.showInstallPrompt, 2000);
+        });
+
+        // Manual iOS check
+        setTimeout(UI.showInstallPrompt, 2000);
+
         // Init History
         UI.renderHistory(Storage.load());
 
@@ -37,13 +48,19 @@ const App = {
             return;
         }
 
-        // Strict Validation (Chaos Monkey Fix)
-        if (raw.q <= 0 || raw.d <= 0 || raw.l <= 0) {
-            UI.showError("Caudal, Diámetro y Longitud deben ser positivos.");
+        // Strict Validation (Apple-grade Fail-Closed)
+        if (isNaN(raw.q) || isNaN(raw.d) || isNaN(raw.l)) {
+            UI.showError("Por favor verifica los números. Usa coma (,) o punto (.).");
             return;
         }
-        if (raw.roughness < 0 || raw.k < 0) {
-            UI.showError("La rugosidad y coef. K no pueden ser negativos.");
+
+        if (raw.q <= 0 || raw.d <= 0 || raw.l <= 0) {
+            UI.showError("Caudal, Diámetro y Longitud deben ser mayores a 0.");
+            return;
+        }
+
+        if ((raw.roughness < 0 && raw.roughness !== undefined) || raw.k < 0) {
+            UI.showError("Valores físicos imposibles (negativos).");
             return;
         }
 
