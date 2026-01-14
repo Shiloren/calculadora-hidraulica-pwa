@@ -17,11 +17,11 @@
 3.  **Mobile-First**: El botón "Calcular" debe ser siempre visible (Sticky Bottom).
 
 ## ✅ Últimos Cambios Realizados
-1.  **Hardening & Chaos Monkey**: El sistema sobrevivió a pruebas de estrés ("Chaos Monkey"). Se implementó validación estricta y manejo de errores para valores negativos, cero, y no numéricos.
-2.  **UX Premium & Rebranding**: Renombrado a "Hydrocálculo". Interfaz "Apple-grade" con tipografía, colores y sombras refinadas.
-3.  **Sticky Footer & Layout**: Solución robusta para botones de acción fijos en móviles (`position: fixed`).
-4.  **Lógica de Historial**: Implementada de-duplicación para evitar entradas repetidas en `localStorage`.
-5.  **Onboarding PWA**: Detección de SO para instrucciones de instalación.
+1.  **PWA "Silent Install"**: Implementado flujo de instalación no intrusivo (Toast). En iOS abre guía visual con iconos custom; en Android lanza prompt nativo.
+2.  **UI Moderno & Compacto**: Rediseño a layout "Grid Anti-Scroll". Inputs más densos, eliminación de acordeones y tipografía estilo dashboard.
+3.  **Despliegue & Testing**: Publicado en GitHub Pages (`gh-pages`). Generado `src/qr.html` para testeo rápido en móviles.
+4.  **Limpieza de Consulta Externa**: Eliminado análisis de marca "Locco Burger" del repositorio para mantener el foco en Hydrocálculo.
+5.  **Hardening & Historial**: Validaciones estrictas y de-duplicación de historial mantenidas.
 
 ## 📝 Próximos Pasos Sugeridos
 1.  Validar comportamiento de scroll en dispositivos físicos iOS (Mobile Safari tiene peculiaridades con `position: fixed` y teclado virtual).
