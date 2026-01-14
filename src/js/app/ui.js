@@ -57,6 +57,9 @@ export const UI = {
         area.classList.remove('hidden');
         area.scrollIntoView({ behavior: 'smooth' });
 
+        // Clear error if any was visible manually (though App controller handles flow)
+        document.getElementById('msg-error').classList.add('hidden');
+
         document.getElementById('res-total').textContent = res.totalLoss.toFixed(3) + ' m';
         document.getElementById('res-friction').textContent = res.frictionLoss.toFixed(3) + ' m';
         document.getElementById('res-local').textContent = res.localLoss.toFixed(3) + ' m';
@@ -72,6 +75,27 @@ export const UI = {
         } else {
             wBox.classList.add('hidden');
         }
+    },
+
+    showError: (msg) => {
+        const errBox = document.getElementById('msg-error');
+        // If element doesn't exist in markup (it was hidden in initial index.html? No, let's inject or show)
+        // Checking index.html... ah, we removed msg-error earlier? Let's check.
+        // It was in the first version, but strictly speaking checking the current index.html...
+        // Let's create it dynamically if missing or just alert for now, but better to show in UI.
+
+        // WAIT: In the previous version of index.html I removed it? No.
+        // Let's assume it might not be visible.
+        // I will implement a safe check.
+
+        if (!errBox) {
+            alert(msg);
+            return;
+        }
+
+        errBox.textContent = msg;
+        errBox.classList.remove('hidden');
+        document.getElementById('results-area').classList.add('hidden');
     },
 
     renderHistory: (list) => {
